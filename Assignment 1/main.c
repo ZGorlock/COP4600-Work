@@ -212,7 +212,74 @@ void sjf() {
 }
 
 void rr() {
-
+	int i,j,t;			// Counters (loop count and time restraints respectively)
+	int temp;			// Temp holder (used in bubble sort)
+	int p = -1;			// Process Number (initialized to -1 before deciding starting process)
+	int *queue = (int*)malloc(processCount * sizeof(int)); // Create a dynamic array to serve as queue system
+	
+	for(i=0; i<processCount; i++) // Fill queue with process numbers by arrival times
+	{
+		queue[i] = i; // Fill with next process number first
+		
+		for(j=0; j<i; j++)
+		{
+			if(ps[queue[j]].arrival > ps[queue[j+1]].arrival) // Sort the queue system based on arrival time (since due to quantum limit, having the shortest arrival time does not guarantee it will finish first)
+			{
+				temp = queue[j];
+				queue[j] = queue[j+1];
+				queue[j+1] = temp;
+			}
+		}
+	}	
+	
+	for(t=0; t<runFor; t++) // Loops until time limit for given process.
+	{
+		if (p != -1) 
+		{
+			
+			for(i=0; i<quantum; i++)
+			{
+				ps[p].burst--;
+				
+				if(ps[p].burst == 0)
+					break;
+				
+				if(i == quantum-1) 
+					p = -1; // Reset to check what next process will be
+				
+			}
+			
+			if (p != -1 && ps[p].burst == 0) 
+			{
+				fprintf(output, "Time %d: %s finished\n", t, ps[p].name);
+				ps[p].turnaround = t - ps[p].arrival;
+				ps[p].wait = ps[p].turnaround - ps[p].run;
+				
+				
+				queue[0] = -1;
+				p = -1;
+			}
+		}
+		
+		if (p == -1)
+		{
+			if(processCount > 1 && ps[queue[1]].arrival <= t)
+			{
+				temp = queue[0];
+				for(j=0; j<processCount-1; j++)
+				{
+					if(queue[j+1] == -1) // If for some reason, the queue gets smaller, and more than one '-1' is in the queue
+						break;
+					
+					queue[j] = queue[j+1];
+				}	
+				queue[j] = temp;
+			}
+			
+				p = queue[0];
+		}
+	}
+	
 }
 
 void printData() {
