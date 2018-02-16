@@ -234,105 +234,144 @@ void sjf() {
 }
 
 void rr() {
-  //Sort processes by arrival time
-  for (i = 0;i<processCount;i++)
-  {
-    temp = ps[i];
-    for (j = i + 1;j<processCount;j++)
-    {
-      if (ps[i].arrival > ps[j].arrival)
-      {
-        ps[i] = ps[j];
-        ps[j] = temp;
-      }
-    }
-  }
-
-  int t;
-  int p = -1;
-  for (t = 0; t < runFor; t++) {
-
-    //if something arrived, print it out
-
-    //if p != -1 decrement burst of ps[p]
-    //determine if it has finished, if so print the message
-    //if not, check if its quantum has run out
-    //    if it has, set p++ until it finds a p where the burst is not 0
-    //    if p reaches ps[].length then p = 0
-    //    if it completes a whole loop then there are no more processes to run and it is done
-    //    keep some variable for the lastP, so if it gets all the way around and back to the same p, it will not print "selected" again, it will just go for another quantum
-
-  }
-
-  /*
-	int i,j,t;			// Counters (loop count and time restraints respectively)
-	int temp;			// Temp holder (used in bubble sort)
-	int p = -1;			// Process Number (initialized to -1 before deciding starting process)
-	int *queue = (int*)malloc(processCount * sizeof(int)); // Create a dynamic array to serve as queue system
+  int i,j,t;
+	int arrCheck;
+	int p = -1;
+	int lastP = 0;
 	
-	for(i=0; i<processCount; i++) // Fill queue with process numbers by arrival times
-	{
-		queue[i] = i; // Fill with next process number first
-		
-		for(j=0; j<i; j++)
+  //Sort processes by arrival time
+	  for (i = 0;i<processCount;i++)
+	  {
+		temp = ps[i];
+		for (j = i + 1;j<processCount;j++)
 		{
-			if(ps[queue[j]].arrival > ps[queue[j+1]].arrival) // Sort the queue system based on arrival time (since due to quantum limit, having the shortest arrival time does not guarantee it will finish first)
+		  if (ps[i].arrival > ps[j].arrival)
+		  {
+			ps[i] = ps[j];
+			ps[j] = temp;
+		  }
+		}
+	  }
+
+	  
+	  for (t = 0; t < runFor; t++) {
+		//if something arrived, print it out
+		for(j=0;j<processCount;j++)
+		{
+			if(ps[j].arrival == t) 
+				fprintf(output,"Time %d: %s arrived\n",i,ps[j].name);
+		}
+		
+		if(p==-1)
+		{			
+			for(j=0;j<processCount;j++)
 			{
-				temp = queue[j];
-				queue[j] = queue[j+1];
-				queue[j+1] = temp;
+				if(j != lastP && ps[j].arrival <= t && ps[j].burst != 0) // HERE IS WHAT NEEDS TO BE FIXED: This needs to be able to: 1) go to the NEXT process from last P, 2) if lastP is the last process that arrived, it should loop back to first process that arrived
+				{					
+					fprintf(output,"Time %d: %s selected (burst %d)\n",i,ps[currProcess].name,ps[currProcess].burst);
+					p=j;
+					lastP=p;
+					break;
+				}
 			}
 		}
-	}	
-	
-	for(t=0; t<runFor; t++) // Loops until time limit for given process.
-	{
-		if (p != -1) 
+		
+		if(p!=-1)
 		{
-			
-			for(i=0; i<quantum; i++)
+			for(j=0; j<quantum; j++)
 			{
 				ps[p].burst--;
+				t++; // Increment time here since we're going up 1s per 1s of quantum
 				
 				if(ps[p].burst == 0)
-					break;
-				
-				if(i == quantum-1) 
-					p = -1; // Reset to check what next process will be
-				
+				{
+					fprintf(output,"Time %d: %s finished\n", i+1, ps[currProcess].name);
+					ps[currProcess].turnaround = (i+1) - ps[currProcess].arrival;
+					ps[currProcess].wait = ps[currProcess].turnaround - ps[currProcess].run;
+				}
 			}
 			
-			if (p != -1 && ps[p].burst == 0) 
-			{
-				fprintf(output, "Time %d: %s finished\n", t, ps[p].name);
-				ps[p].turnaround = t - ps[p].arrival;
-				ps[p].wait = ps[p].turnaround - ps[p].run;
-				
-				
-				queue[0] = -1;
-				p = -1;
-			}
+			p=-1;
 		}
 		
-		if (p == -1)
+		//if p != -1 decrement burst of ps[p]
+		//determine if it has finished, if so print the message
+		//if not, check if its quantum has run out
+		//    if it has, set p++ until it finds a p where the burst is not 0
+		//    if p reaches ps[].length then p = 0
+		//    if it completes a whole loop then there are no more processes to run and it is done
+		//    keep some variable for the lastP, so if it gets all the way around and back to the same p, it will not print "selected" again, it will just go for another quantum
+
+	  }
+
+	  /*
+		int i,j,t;			// Counters (loop count and time restraints respectively)
+		int temp;			// Temp holder (used in bubble sort)
+		int p = -1;			// Process Number (initialized to -1 before deciding starting process)
+		int *queue = (int*)malloc(processCount * sizeof(int)); // Create a dynamic array to serve as queue system
+		
+		for(i=0; i<processCount; i++) // Fill queue with process numbers by arrival times
 		{
-			if(processCount > 1 && ps[queue[1]].arrival <= t)
+			queue[i] = i; // Fill with next process number first
+			
+			for(j=0; j<i; j++)
 			{
-				temp = queue[0];
-				for(j=0; j<processCount-1; j++)
+				if(ps[queue[j]].arrival > ps[queue[j+1]].arrival) // Sort the queue system based on arrival time (since due to quantum limit, having the shortest arrival time does not guarantee it will finish first)
 				{
-					if(queue[j+1] == -1) // If for some reason, the queue gets smaller, and more than one '-1' is in the queue
+					temp = queue[j];
+					queue[j] = queue[j+1];
+					queue[j+1] = temp;
+				}
+			}
+		}	
+		
+		for(t=0; t<runFor; t++) // Loops until time limit for given process.
+		{
+			if (p != -1) 
+			{
+				
+				for(i=0; i<quantum; i++)
+				{
+					ps[p].burst--;
+					
+					if(ps[p].burst == 0)
 						break;
 					
-					queue[j] = queue[j+1];
-				}	
-				queue[j] = temp;
+					if(i == quantum-1) 
+						p = -1; // Reset to check what next process will be
+					
+				}
+				
+				if (p != -1 && ps[p].burst == 0) 
+				{
+					fprintf(output, "Time %d: %s finished\n", t, ps[p].name);
+					ps[p].turnaround = t - ps[p].arrival;
+					ps[p].wait = ps[p].turnaround - ps[p].run;
+					
+					
+					queue[0] = -1;
+					p = -1;
+				}
 			}
 			
-				p = queue[0];
-		}
-	}*/
-	
+			if (p == -1)
+			{
+				if(processCount > 1 && ps[queue[1]].arrival <= t)
+				{
+					temp = queue[0];
+					for(j=0; j<processCount-1; j++)
+					{
+						if(queue[j+1] == -1) // If for some reason, the queue gets smaller, and more than one '-1' is in the queue
+							break;
+						
+						queue[j] = queue[j+1];
+					}	
+					queue[j] = temp;
+				}
+				
+					p = queue[0];
+			}
+		}*/
 }
 
 void printData() {
