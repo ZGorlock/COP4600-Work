@@ -121,10 +121,24 @@ void schedule() {
 void fcfs() {
 
 	int i,j;
-	int temp;
 	int currProcess = 0;
 	int arrived = -1;
 	int running = -1;
+	struct process temp;
+
+	//Sort processes by arrival time
+	for(i=0;i<processCount;i++)
+	{
+		temp = ps[i];
+		for(j=i+1;j<processCount;j++)
+		{
+			if(ps[i].arrival > ps[j].arrival)
+			{
+				ps[i] = ps[j];
+				ps[j] = temp;
+			}
+		}
+	}
 
 	//Time frame for processes to run
 	for(i=0;i<runFor;i++)
