@@ -35,7 +35,7 @@ int main(void) {
 }
 
 void readInputFile() {
-	FILE *input = fopen("process.in", "r");
+	FILE *input = fopen("set3_process.in", "r");
 
 	char data[128];
 	int pcount = -1;
@@ -72,7 +72,7 @@ void readInputFile() {
 				token = strtok(NULL, " ");
 				ps[pcount].name = malloc(strlen(token) + 1);
 				strcpy(ps[pcount].name, token);
-        ps[pcount].index = pcount;
+				ps[pcount].index = pcount;
 			}
 			if (strcmp(token, "arrival") == 0) {
 				token = strtok(NULL, " ");
@@ -234,6 +234,37 @@ void sjf() {
 }
 
 void rr() {
+  //Sort processes by arrival time
+  for (i = 0;i<processCount;i++)
+  {
+    temp = ps[i];
+    for (j = i + 1;j<processCount;j++)
+    {
+      if (ps[i].arrival > ps[j].arrival)
+      {
+        ps[i] = ps[j];
+        ps[j] = temp;
+      }
+    }
+  }
+
+  int t;
+  int p = -1;
+  for (t = 0; t < runFor; t++) {
+
+    //if something arrived, print it out
+
+    //if p != -1 decrement burst of ps[p]
+    //determine if it has finished, if so print the message
+    //if not, check if its quantum has run out
+    //    if it has, set p++ until it finds a p where the burst is not 0
+    //    if p reaches ps[].length then p = 0
+    //    if it completes a whole loop then there are no more processes to run and it is done
+    //    keep some variable for the lastP, so if it gets all the way around and back to the same p, it will not print "selected" again, it will just go for another quantum
+
+  }
+
+  /*
 	int i,j,t;			// Counters (loop count and time restraints respectively)
 	int temp;			// Temp holder (used in bubble sort)
 	int p = -1;			// Process Number (initialized to -1 before deciding starting process)
@@ -300,7 +331,7 @@ void rr() {
 			
 				p = queue[0];
 		}
-	}
+	}*/
 	
 }
 
