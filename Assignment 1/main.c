@@ -94,7 +94,7 @@ void schedule() {
 	fprintf(output, "%d processes\n", processCount);
 
 	if (strcmp(algorithm, "fcfs") == 0) {
-		fprintf(output, "Using First Come First Serve\n\n");
+		fprintf(output, "Using First Come First Served\n\n");
 		fcfs();
 	} else if (strcmp(algorithm, "sjf") == 0) {
 		fprintf(output, "Using Shortest Job First (Pre)\n\n");
@@ -120,6 +120,49 @@ void schedule() {
 
 void fcfs() {
 
+	int i,j;
+	int temp;
+	int currProcess = 0;
+	int arrived = -1;
+	int running = -1;
+
+	//Time frame for processes to run
+	for(i=0;i<runFor;i++)
+	{
+		//Loop through processes
+		for(j=0;j<processCount;j++)
+		{
+			//Print arrival of a process and signal arrival
+			if(ps[j].arrival == i)
+			{
+				fprintf(output,"Time %d: %s arrived\n",i,ps[j].name);
+				arrived = 0;
+			}
+		}
+
+		//Select process to run
+		if(arrived != -1 && running == -1)
+		{
+			fprintf(output,"Time %d: %s selected (burst %d)\n",i,ps[currProcess].name,ps[currProcess].burst);
+			running = 0;
+		}
+
+		//Run Process
+		if(running != -1)
+		{
+			ps[currProcess].burst--;
+			if(ps[currProcess].burst == 0)
+			{
+				fprintf(output,"Time %d: %s finished\n", i+1, ps[currProcess].name);
+				ps[currProcess].turnaround = (i+1) - ps[currProcess].arrival;
+				ps[currProcess].wait = ps[currProcess].turnaround - ps[currProcess].run;
+				running = -1;
+				currProcess++;
+			}
+		}
+	}
+
+	fprintf(output, "Finished at time %d\n", i);
 }
 
 void sjf() {
