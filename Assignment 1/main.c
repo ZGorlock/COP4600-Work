@@ -16,6 +16,7 @@ struct process { //process structure
   int run;
   int wait;
   int turnaround;
+  int index;
 };
 
 int processCount;
@@ -71,6 +72,7 @@ void readInputFile() {
 				token = strtok(NULL, " ");
 				ps[pcount].name = malloc(strlen(token) + 1);
 				strcpy(ps[pcount].name, token);
+        ps[pCount].index = pCount;
 			}
 			if (strcmp(token, "arrival") == 0) {
 				token = strtok(NULL, " ");
@@ -110,10 +112,16 @@ void schedule() {
 	}
 
 	fprintf(output, "\n");
-	int i;
-	for (i = 0; i < processCount; i++) {
-		fprintf(output, "%s wait %d turnaround %d\n", ps[i].name, ps[i].wait, ps[i].turnaround);
-	}
+  int p = 0;
+  while (p < processCount) {
+    int i;
+    for (i = 0; i < processCount; i++) {
+      if (ps[i].index == p) {
+        fprintf(output, "%s wait %d turnaround %d\n", ps[i].name, ps[i].wait, ps[i].turnaround);
+        p++;
+      }
+    }
+  }
 
 	fclose(output);
 }
