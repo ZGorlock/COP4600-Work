@@ -72,7 +72,7 @@ void readInputFile() {
 				token = strtok(NULL, " ");
 				ps[pcount].name = malloc(strlen(token) + 1);
 				strcpy(ps[pcount].name, token);
-        ps[pCount].index = pCount;
+        ps[pcount].index = pCount;
 			}
 			if (strcmp(token, "arrival") == 0) {
 				token = strtok(NULL, " ");
