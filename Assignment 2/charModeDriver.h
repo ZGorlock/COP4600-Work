@@ -1,21 +1,15 @@
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <errno.h>
-#include <string.h>
-#include <unistd.h>
-
+#include <linux/init.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
-#include <linux/init.h>
 #include <linux/fs.h>
+#include <linux/uaccess.h>
 
 
 //Module Documentation
-#define DRIVER_LICENSE	"GPL"
-#define DRIVER_AUTHOR 	"Group 1: Zack Gill, John Mac, Jacob Kerner"
-#define DRIVER_DESC   	"A sample character-mode Linux device driver kernel module."
-#define DRIVER_VER		"0.1"
+#define DRIVER_LICENSE "GPL"
+#define DRIVER_AUTHOR "Group 1: Zack Gill, John Mac, Jacob Kerner"
+#define DRIVER_DESC "A sample character-mode Linux device driver kernel module."
+#define DRIVER_VER "0.1"
 
 
 //Constants
@@ -28,9 +22,7 @@
 
 
 //Function Prototypes
-int init_module(void);
-void cleanup_module(void);
-static int device_open(struct inode *, struct file *);
-static int device_release(struct inode *, struct file *);
-static ssize_t device_read(struct file *, char *, size_t, loff_t *);
-static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
+int device_open(struct inode *inode, struct file *file);
+int device_release(struct inode *inode, struct file *file);
+ssize_t device_read(struct file *filp, char *buffer, size_t length, loff_t *offset);
+ssize_t device_write(struct file *file, const char *buff, size_t len, loff_t *off);

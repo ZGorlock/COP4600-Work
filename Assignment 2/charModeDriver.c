@@ -21,7 +21,7 @@ static struct file_operations fops = {
 };
 
 
-static int __init init_module(void) {
+int init_module(void) {
 	Major = register_chrdev(0, DEVICE_NAME, &fops);
 	if (Major < 0) {
 		printk(KERN_ALERT "Failed to register character-mode device: %d\n", Major);
@@ -34,18 +34,15 @@ static int __init init_module(void) {
 	return SUCCESS;
 }
 
-static void __exit cleanup_module(void) {
-	int ret = unregister_chrdev(Major, DEVICE_NAME);
-	if (ret < 0) {
-		printk(KERN_ALERT "Failed to unregister character-mode device: %d with error-code: %d\n", Major, ret);
-	} else {
-		printk(KERN_INFO "Unregistered character-mode device: %d\n", Major);
-	}
+void cleanup_module(void) {
+	unregister_chrdev(Major, DEVICE_NAME);
+	printk(KERN_INFO "Unregistered character-mode device: %d\n", Major);
 	
 	printk(KERN_INFO "Removing module.\n");
 }
 
-static int device_open(struct *inode, struct file *file) {
+
+int device_open(struct inode *inode, struct file *file) {
 	static int counter = 0;
 	
 	if (Device_Open) {
@@ -63,7 +60,7 @@ static int device_open(struct *inode, struct file *file) {
 	return SUCCESS;
 }
 
-static int device_release(struct inode *inode, struct file *file) {
+int device_release(struct inode *inode, struct file *file) {
 	if (!Device_Open) {
 		printk(KERN_WARNING "Attempted to close character-mode device but it is not open.\n");
 		return -EPERM;
@@ -77,7 +74,7 @@ static int device_release(struct inode *inode, struct file *file) {
 	return SUCCESS;
 }
 
-static ssize_t device_read(struct file *filp, char *buffer,	size_t length, loff_t *offset) {
+ssize_t device_read(struct file *filp, char *buffer, size_t length, loff_t *offset) {
 	int bytes_read = 0;
 
 	if (*msg_Ptr == 0) {
@@ -96,14 +93,11 @@ static ssize_t device_read(struct file *filp, char *buffer,	size_t length, loff_
 	return bytes_read;
 }
 
-static ssize_t device_write(struct file *filp, const char *buff, size_t len, loff_t * off) {
+ssize_t device_write(struct file *filp, const char *buff, size_t len, loff_t *off) {
 	//sprintf(message, "%s(%zu letters)", buffer, len);
-	size_of_message = strlen(message);
+	//size_t size_of_message = strlen(buff);
 	
 	printk(KERN_INFO "Wrote %zu characters to the character-mode device.\n", len);
 	
 	return len;
 }
-
-module_init(init_module);
-module_exit(cleanup_module);
