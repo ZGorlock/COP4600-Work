@@ -13,7 +13,7 @@
 
 //Module Documentation
 #define DRIVER_LICENSE	"GPL"
-#define DRIVER_AUTHOR 	"Group 1: Zack Gill, John Mac, Jacob Kerner"
+#define DRIVER_AUTHOR 	"Group 1: Zack Gill, John McFarland, Jacob Kerner"
 #define DRIVER_DESC   	"A sample character-mode Linux device driver kernel module."
 #define DRIVER_VER		"0.1"
 
