@@ -77,7 +77,7 @@ ssize_t device_read(struct file *filp, char *buffer, size_t length, loff_t *offs
 
 	if (length > msgSize) {
 		printk(KERN_INFO "Cannot perform read request: Only %d characters available\n", msgSize);
-		return;
+		return -EFAULT;
 	}
 	
 	// copy_to_user has the format ( * to, *from, size) and returns 0 on success
@@ -100,13 +100,12 @@ ssize_t device_write(struct file *filp, const char *buff, size_t len, loff_t *of
 		msgSize = strlen(msg);
 		
 	} else {
-		printk(KERN_INFO "Error: %zu excess characters received in overflow\n", ((msgSize + len) - BUFFER_LENGTH); // If len = 5, but only 2 can be stored, this prints 3.
+		printk(KERN_INFO "Error: %zu excess characters received in overflow\n", ((msgSize + len) - BUFFER_LENGTH)); // If len = 5, but only 2 can be stored, this prints 3.
 		len = BUFFER_LENGTH - msgSize;
-		char* newBuff = char[len];
-		sprintf(msg, "%s", strncpy(newBuff, buff, len);
+		char newBuff[len];
+		sprintf(msg, "%s", strncpy(newBuff, buff, len));
 	}
 	
-
 	printk(KERN_INFO "Received %zu characters from the user\n", len);
 
 	return len;
