@@ -10,8 +10,8 @@ MODULE_VERSION(DRIVER_VER);
 static int Major;
 static int Device_Open = 0;
 
-static char msg[BUFFER_LENGTH];
-static char *msg_Ptr;
+static char msg[BUFFER_LENGTH] = {0};
+static int msgSize;
 
 static struct file_operations fops = {
 	.read = device_read,
@@ -22,13 +22,14 @@ static struct file_operations fops = {
 
 
 int init_module(void) {
+	printk(KERN_INFO "Installing module.\n");
+
 	Major = register_chrdev(0, DEVICE_NAME, &fops);
 	if (Major < 0) {
 		printk(KERN_ALERT "Failed to register character-mode device: %d\n", Major);
 		return Major;
 	}
 	
-	printk(KERN_INFO "Installing module.\n");
 	printk(KERN_INFO "Registered character-mode device with major number: %d\n", Major);
 	
 	return SUCCESS;
@@ -52,10 +53,8 @@ int device_open(struct inode *inode, struct file *file) {
 	
 	Device_Open++;
 	counter++;
-	printk(KERN_INFO "Opened character-mode device. Opened %d time(s).\n", counter);
-	
-	msg_Ptr = msg;
 	try_module_get(THIS_MODULE);
+	printk(KERN_INFO "Opened character-mode device. Opened %d time(s).\n", counter);
 	
 	return SUCCESS;
 }
@@ -67,37 +66,32 @@ int device_release(struct inode *inode, struct file *file) {
 	}
 	
 	Device_Open--;
-	printk(KERN_INFO "Closed character-mode device.\n");
-
 	module_put(THIS_MODULE);
+	printk(KERN_INFO "Closed character-mode device.\n");
 
 	return SUCCESS;
 }
 
 ssize_t device_read(struct file *filp, char *buffer, size_t length, loff_t *offset) {
-	int bytes_read = 0;
+	int error_count = 0;
 
-	if (*msg_Ptr == 0) {
-		return 0;
+	// copy_to_user has the format ( * to, *from, size) and returns 0 on success
+	error_count = copy_to_user(buffer, msg, msgSize);
+
+	if (error_count==0) {
+		printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", msgSize);
+		return (msgSize=0);
+	} else {
+		printk(KERN_INFO "EBBChar: Failed to send %d characters to the user\n", error_count);
+		return -EFAULT;
 	}
-
-	while (length && *msg_Ptr) {
-		put_user(*(msg_Ptr++), buffer++);
-		
-		length--;
-		bytes_read++;
-	}
-	
-	printk(KERN_INFO "Read %d characters from the character-mode device.\n", bytes_read);
-
-	return bytes_read;
 }
 
 ssize_t device_write(struct file *filp, const char *buff, size_t len, loff_t *off) {
-	//sprintf(message, "%s(%zu letters)", buffer, len);
-	//size_t size_of_message = strlen(buff);
-	
-	printk(KERN_INFO "Wrote %zu characters to the character-mode device.\n", len);
-	
+	sprintf(msg, "%s", buff);
+	msgSize = strlen(msg);
+
+	printk(KERN_INFO "EBBChar: Received %zu characters from the user\n", len);
+
 	return len;
 }
