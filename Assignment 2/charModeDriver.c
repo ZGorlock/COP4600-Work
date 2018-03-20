@@ -95,7 +95,7 @@ ssize_t device_read(struct file *filp, char *buffer, size_t length, loff_t *offs
 
 ssize_t device_write(struct file *filp, const char *buff, size_t len, loff_t *off) {
 	
-	char* newBuff = char[BUFFER_LENGTH];
+	char newBuff[BUFFER_LENGTH];
 	
 	if(msgSize+len <= BUFFER_LENGTH)
 	{		
@@ -104,9 +104,9 @@ ssize_t device_write(struct file *filp, const char *buff, size_t len, loff_t *of
 	}
 	else
 	{
-		printk(KERN_INFO "Error: %zu excess characters received in overflow\n", ((msgSize + len) - BUFFER_LENGTH); // If len = 5, but only 2 can be stored, this prints 3.
+		printk(KERN_INFO "Error: %zu excess characters received in overflow\n", ((msgSize + len) - BUFFER_LENGTH)); // If len = 5, but only 2 can be stored, this prints 3.
 		len = BUFFER_LENGTH - msgSize;
-		strncpy(newBuff, buff, len)
+		strncpy(newBuff, buff, len);
 		sprintf(msg, "%s", newBuff);
 	}
 	
