@@ -79,19 +79,20 @@ ssize_t device_read(struct file *filp, char *buffer, size_t length, loff_t *offs
 	error_count = copy_to_user(buffer, msg, msgSize);
 
 	if (error_count==0) {
-		printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", msgSize);
+		printk(KERN_INFO "Sent %d characters to the user\n", msgSize);
 		return (msgSize=0);
 	} else {
-		printk(KERN_INFO "EBBChar: Failed to send %d characters to the user\n", error_count);
+		printk(KERN_INFO "Failed to send %d characters to the user\n", error_count);
 		return -EFAULT;
 	}
 }
 
 ssize_t device_write(struct file *filp, const char *buff, size_t len, loff_t *off) {
+	
 	sprintf(msg, "%s", buff);
 	msgSize = strlen(msg);
 
-	printk(KERN_INFO "EBBChar: Received %zu characters from the user\n", len);
+	printk(KERN_INFO "Received %zu characters from the user\n", len);
 
 	return len;
 }
