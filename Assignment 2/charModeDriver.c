@@ -75,12 +75,18 @@ int device_release(struct inode *inode, struct file *file) {
 ssize_t device_read(struct file *filp, char *buffer, size_t length, loff_t *offset) {
 	int error_count = 0;
 
+	if (length > msgSize) {
+		printk(KERN_INFO "Cannot perform read request: Only %d characters available\n", msgSize);
+		return;
+	}
+	
 	// copy_to_user has the format ( * to, *from, size) and returns 0 on success
 	error_count = copy_to_user(buffer, msg, msgSize);
 
 	if (error_count==0) {
 		printk(KERN_INFO "Sent %d characters to the user\n", msgSize);
 		return (msgSize=0);
+		
 	} else {
 		printk(KERN_INFO "Failed to send %d characters to the user\n", error_count);
 		return -EFAULT;
@@ -89,13 +95,11 @@ ssize_t device_read(struct file *filp, char *buffer, size_t length, loff_t *offs
 
 ssize_t device_write(struct file *filp, const char *buff, size_t len, loff_t *off) {
 	
-	if(msgSize+len <= BUFFER_LENGTH)
-	{		
+	if (msgSize + len <= BUFFER_LENGTH) {		
 		sprintf(msg, "%s", buff);
 		msgSize = strlen(msg);
-	}
-	else
-	{
+		
+	} else {
 		printk(KERN_INFO "Error: %zu excess characters received in overflow\n", ((msgSize + len) - BUFFER_LENGTH); // If len = 5, but only 2 can be stored, this prints 3.
 		len = BUFFER_LENGTH - msgSize;
 		char* newBuff = char[len];
