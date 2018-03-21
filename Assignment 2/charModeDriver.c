@@ -80,15 +80,25 @@ ssize_t device_read(struct file *filp, char *buffer, size_t length, loff_t *offs
 
 	if (length > msgSize) {
 		printk(KERN_INFO "Cannot perform read request: Only %d characters available\n", msgSize);
-		return -EFAULT;
+		printk(KERN_INFO "Buffer (%d) [%s]\n", msgSize, msg);
+		return SUCCESS;
 	}
 	
 	// copy_to_user has the format ( * to, *from, size) and returns 0 on success
-	error_count = copy_to_user(buffer, msg, msgSize);
+	error_count = copy_to_user(buffer, msg, length);
 
-	if (error_count==0) {
-		printk(KERN_INFO "Sent %d characters to the user\n", msgSize);
-		return (msgSize=0);
+	if (error_count == 0) {
+		printk(KERN_INFO "Sent %d characters to the user\n", length);
+
+		memset(&newBuff[0], 0, sizeof(newBuff));
+		memcpy(newBuff, msg + length, msgSize - length);
+		memset(&msg[0], 0, sizeof(msg));
+		memcpy(msg, newBuff, BUFFER_LENGTH);
+		msgSize = strlen(msg);
+
+		printk(KERN_INFO "Buffer (%d) [%s]\n", msgSize, msg);
+
+		return SUCCESS;
 		
 	} else {
 		printk(KERN_INFO "Failed to send %d characters to the user\n", error_count);
@@ -97,8 +107,8 @@ ssize_t device_read(struct file *filp, char *buffer, size_t length, loff_t *offs
 }
 
 ssize_t device_write(struct file *filp, const char *buff, size_t len, loff_t *off) {
-	if (msgSize+len <= BUFFER_LENGTH) {		
-		sprintf(msg, "%s", buff);
+	if (msgSize+len <= BUFFER_LENGTH) {
+		strcat(msg, buff);
 		msgSize = strlen(msg);
 
 	} else {
@@ -109,11 +119,12 @@ ssize_t device_write(struct file *filp, const char *buff, size_t len, loff_t *of
 		memset(&newBuff[0], 0, sizeof(newBuff));
 		strncpy(newBuff, buff, len);
 
-		sprintf(msg, "%s", newBuff);
+		strcat(msg, newBuff);
 		msgSize = strlen(msg);
 	}
 	
 	printk(KERN_INFO "Received %zu characters from the user\n", len);
+	printk(KERN_INFO "Buffer (%d) [%s]\n", msgSize, msg);
 
 	return len;
 }

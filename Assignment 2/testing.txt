@@ -1,0 +1,8 @@
+make
+sudo insmod charModeDriver.ko
+dmesg
+sudo mknod /dev/charModeDevice c 247 0
+sudo ./test
+sudo rm /dev/charModeDevice
+sudo rmmod charModeDriver
+dmesg

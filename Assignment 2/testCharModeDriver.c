@@ -16,7 +16,7 @@ int main(void) {
 	}
 
 
-	printf("Testing normal read/write\n");
+	printf("\nTesting normal read/write\n");
 	char stringToSend1[BUFFER_LENGTH];
 	strncpy(stringToSend1, "Testing testing 123", BUFFER_LENGTH);
 
@@ -25,14 +25,18 @@ int main(void) {
 		perror("Failed to write the message to the device.");
 		return errno;
 	}
+	printf("Wrote [%s]\n", stringToSend1);
+
+	memset(&receive[0], 0, sizeof(receive));
 	ret = read(fd, receive, strlen(stringToSend1));
 	if (ret < 0){
 		perror("Failed to read the message from the device.");
 		return errno;
 	}
+	printf("Read  [%s]\n", receive);
 
 
-	printf("Testing max read/write\n");
+	printf("\nTesting max read/write\n");
 	char stringToSend2[BUFFER_LENGTH];
 	strncpy(stringToSend2, "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", BUFFER_LENGTH);
 
@@ -41,57 +45,74 @@ int main(void) {
 		perror("Failed to write the message to the device.");
 		return errno;
 	}
+	printf("Wrote [%s]\n", stringToSend2);
+
+	memset(&receive[0], 0, sizeof(receive));
 	ret = read(fd, receive, strlen(stringToSend2));
 	if (ret < 0){
 		perror("Failed to read the message from the device.");
 		return errno;
 	}
+	printf("Read  [%s]\n", receive);
 
 
-	printf("Testing consecutive read/write\n");
-	char stringToSend3[BUFFER_LENGTH];
-	stringToSend3[0] = '1';
+	printf("\nTesting consecutive read/write\n");
+	char stringToSend3a[BUFFER_LENGTH];
+	strncpy(stringToSend3a, "1", 1);
 
-	ret = write(fd, stringToSend3, 1);
+	ret = write(fd, stringToSend3a, 1);
 	if (ret < 0){
 		perror("Failed to write the message to the device.");
 		return errno;
 	}
+	printf("Wrote [%s]\n", stringToSend3a);
 
-	stringToSend3[0] = '2';
-	ret = write(fd, stringToSend3, 1);
+	char stringToSend3b[BUFFER_LENGTH];
+	strncpy(stringToSend3b, "2", 1);
+
+	ret = write(fd, stringToSend3b, 1);
 	if (ret < 0){
 		perror("Failed to write the message to the device.");
 		return errno;
 	}
+	printf("Wrote [%s]\n", stringToSend3b);
 
-	stringToSend3[0] = '3';
-	ret = write(fd, stringToSend3, 1);
+	char stringToSend3c[BUFFER_LENGTH];
+	strncpy(stringToSend3c, "3", 1);
+
+	ret = write(fd, stringToSend3c, 1);
 	if (ret < 0){
 		perror("Failed to write the message to the device.");
 		return errno;
 	}
+	printf("Wrote [%s]\n", stringToSend3c);
 
+	memset(&receive[0], 0, sizeof(receive));
 	ret = read(fd, receive, 1);
 	if (ret < 0){
 		perror("Failed to read the message from the device.");
 		return errno;
 	}
+	printf("Read  [%s]\n", receive);
 
+	memset(&receive[0], 0, sizeof(receive));
 	ret = read(fd, receive, 1);
 	if (ret < 0){
 		perror("Failed to read the message from the device.");
 		return errno;
 	}
+	printf("Read  [%s]\n", receive);
 
+	memset(&receive[0], 0, sizeof(receive));
 	ret = read(fd, receive, 1);
 	if (ret < 0){
 		perror("Failed to read the message from the device.");
 		return errno;
 	}
+	printf("Read  [%s]\n", receive);
 
 
-	printf("Testing write overflow\n");
+	printf("\nTesting write overflow\n");
 	char stringToSend4[BUFFER_LENGTH];
 	strncpy(stringToSend4, "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", BUFFER_LENGTH);
 
@@ -100,6 +121,7 @@ int main(void) {
 		perror("Failed to write the message to the device.");
 		return errno;
 	}
+	printf("Wrote [%s]\n", stringToSend4);
 
 	char stringToSend5[BUFFER_LENGTH];
 	strncpy(stringToSend5, "1111", BUFFER_LENGTH); //only 3 spaces available
@@ -109,15 +131,18 @@ int main(void) {
 		perror("Failed to write the message to the device.");
 		return errno;
 	}
+	printf("Wrote [%s]\n", stringToSend5);
 
+	memset(&receive[0], 0, sizeof(receive));
 	ret = read(fd, receive, BUFFER_LENGTH);
 	if (ret < 0){
 		perror("Failed to read the message from the device.");
 		return errno;
 	}
+	printf("Read  [%s]\n", receive);
 
 
-	printf("Testing read underflow\n");
+	printf("\nTesting read underflow\n");
 	char stringToSend6[BUFFER_LENGTH];
 	strncpy(stringToSend6, "111", BUFFER_LENGTH);
 
@@ -126,12 +151,23 @@ int main(void) {
 		perror("Failed to write the message to the device.");
 		return errno;
 	}
+	printf("Wrote [%s]\n", stringToSend6);
 
+	memset(&receive[0], 0, sizeof(receive));
 	ret = read(fd, receive, 4); //only 3 characters available
 	if (ret < 0){
 		perror("Failed to read the message from the device.");
 		return errno;
 	}
+	printf("Read  [%s]\n", receive);
+
+	memset(&receive[0], 0, sizeof(receive));
+	ret = read(fd, receive, 3); //clean buffer
+	if (ret < 0){
+		perror("Failed to read the message from the device.");
+		return errno;
+	}
+	printf("Read  [%s]\n", receive);
 
 
 	return SUCCESS;
