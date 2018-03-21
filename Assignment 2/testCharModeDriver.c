@@ -170,6 +170,9 @@ int main(void) {
 	printf("Read  [%s]\n", receive);
 
 
+	close(fd);
+
+
 	return SUCCESS;
 
 

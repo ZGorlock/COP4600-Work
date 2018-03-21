@@ -8,7 +8,7 @@ MODULE_VERSION(DRIVER_VER);
 
 
 static int Major;
-static int Device_Open = 0;
+static int isOpen = 0;
 
 static char msg[BUFFER_LENGTH] = {0};
 static int msgSize;
@@ -49,12 +49,12 @@ void cleanup_module(void) {
 int device_open(struct inode *inode, struct file *file) {
 	static int counter = 0;
 	
-	if (Device_Open) {
+	if (isOpen == 1) {
 		printk(KERN_WARNING "Attempted to open character-mode device but it is already open.\n");
 		return -EBUSY;
 	}
 	
-	Device_Open++;
+	isOpen = 1;
 	counter++;
 	try_module_get(THIS_MODULE);
 	printk(KERN_INFO "Opened character-mode device. Opened %d time(s).\n", counter);
@@ -63,12 +63,12 @@ int device_open(struct inode *inode, struct file *file) {
 }
 
 int device_release(struct inode *inode, struct file *file) {
-	if (!Device_Open) {
+	if (isOpen == 0) {
 		printk(KERN_WARNING "Attempted to close character-mode device but it is not open.\n");
 		return -EPERM;
 	}
 	
-	Device_Open--;
+	isOpen = 0;
 	module_put(THIS_MODULE);
 	printk(KERN_INFO "Closed character-mode device.\n");
 
