@@ -13,7 +13,7 @@
 
 
 //Constants
-#define DEVICE_NAME "charModeDevice"
+#define DEVICE_NAME "chardriver"
 
 #define SUCCESS 0
 #define FAILURE -1

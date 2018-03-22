@@ -1,4 +1,4 @@
-#include "charModeDriver.h"
+#include "chardriver.h"
 
 
 MODULE_LICENSE(DRIVER_LICENSE);
@@ -77,6 +77,12 @@ int device_release(struct inode *inode, struct file *file) {
 
 ssize_t device_read(struct file *filp, char *buffer, size_t length, loff_t *offset) {
 	int error_count = 0;
+	
+	if(length == 0){
+		printk(KERN_INFO "Sent %d characters to the user\n", length);
+		printk(KERN_INFO "Buffer (%d) [%s]\n", msgSize, msg);
+		return SUCCESS;
+	}
 
 	if (length > msgSize) {
 		printk(KERN_INFO "Cannot perform read request: Only %d characters available\n", msgSize);
@@ -107,8 +113,9 @@ ssize_t device_read(struct file *filp, char *buffer, size_t length, loff_t *offs
 }
 
 ssize_t device_write(struct file *filp, const char *buff, size_t len, loff_t *off) {
-	if (msgSize+len <= BUFFER_LENGTH) {
-		strcat(msg, buff);
+
+	if (msgSize + len <= BUFFER_LENGTH) {
+		strcat(msg, buff + *off);
 		msgSize = strlen(msg);
 
 	} else {
@@ -117,7 +124,7 @@ ssize_t device_write(struct file *filp, const char *buff, size_t len, loff_t *of
 		len = BUFFER_LENGTH - msgSize;
 
 		memset(&newBuff[0], 0, sizeof(newBuff));
-		strncpy(newBuff, buff, len);
+		strncpy(newBuff, buff + *off, len);
 
 		strcat(msg, newBuff);
 		msgSize = strlen(msg);

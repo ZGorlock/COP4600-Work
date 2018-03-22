@@ -1,2 +1,2 @@
-sudo rmmod charModeDriver -f
-sudo rm /dev/charModeDevice
+sudo rmmod chardriver -f
+sudo rm /dev/chardriver

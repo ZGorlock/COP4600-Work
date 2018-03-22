@@ -1,3 +1,3 @@
-make
-sudo insmod charModeDriver.ko
-sudo mknod /dev/charModeDevice c 247 0
+sudo make
+sudo insmod chardriver.ko
+sudo mknod /dev/chardriver c 247 0

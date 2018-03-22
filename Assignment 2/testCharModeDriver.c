@@ -9,7 +9,7 @@ int main(void) {
 	char stringToSend[BUFFER_LENGTH];
    
 	printf("Starting device test code example...\n");
-	fd = open("/dev/charModeDevice", O_RDWR);             // Open the device with read/write access
+	fd = open("/dev/chardriver", O_RDWR);             // Open the device with read/write access
 	if (fd < 0){
 		perror("Failed to open the device...");
 		return errno;
