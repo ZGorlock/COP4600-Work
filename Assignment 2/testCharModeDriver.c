@@ -161,14 +161,6 @@ int main(void) {
 	}
 	printf("Read  [%s]\n", receive);
 
-	memset(&receive[0], 0, sizeof(receive));
-	ret = read(fd, receive, 3); //clean buffer
-	if (ret < 0){
-		perror("Failed to read the message from the device.");
-		return errno;
-	}
-	printf("Read  [%s]\n", receive);
-
 
 	close(fd);
 

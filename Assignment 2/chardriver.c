@@ -85,9 +85,7 @@ ssize_t device_read(struct file *filp, char *buffer, size_t length, loff_t *offs
 	}
 
 	if (length > msgSize) {
-		printk(KERN_INFO "Cannot perform read request: Only %d characters available\n", msgSize);
-		printk(KERN_INFO "Buffer (%d) [%s]\n", msgSize, msg);
-		return SUCCESS;
+		length = msgSize;
 	}
 	
 	// copy_to_user has the format ( * to, *from, size) and returns 0 on success
