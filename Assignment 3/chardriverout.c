@@ -10,11 +10,17 @@ MODULE_VERSION(DRIVER_VER);
 static int Major;
 static int isOpen = 0;
 
-extern static char msg[BUFFER_LENGTH];
+// Shared buffer
+extern char * msg[BUFFER_LENGTH];
+
+//extern static char msg[BUFFER_LENGTH];
 extern static int msgSize;
 
 static char newBuff[BUFFER_LENGTH];
 
+// Initialize the Mutex
+struct mutex my_mutex;
+mutex_init(&my_mutex);
 
 int init_module(void) {
 	printk(KERN_INFO "Installing module.\n");
@@ -70,6 +76,9 @@ int device_release(struct inode *inode, struct file *file) {
 ssize_t device_read(struct file *filp, char *buffer, size_t length, loff_t *offset) {
 	int error_count = 0;
 	
+	// Start lock to prevent any data corruption or unauthorized usage
+	mutex_lock(&my_lock);
+	
 	if(length == 0){
 		printk(KERN_INFO "Sent %d characters to the user\n", length);
 		printk(KERN_INFO "Buffer (%d) [%s]\n", msgSize, msg);
@@ -93,11 +102,13 @@ ssize_t device_read(struct file *filp, char *buffer, size_t length, loff_t *offs
 		msgSize = strlen(msg);
 
 		printk(KERN_INFO "Buffer (%d) [%s]\n", msgSize, msg);
-
+		
+		mutex_unlock(&my_lock);
 		return SUCCESS;
 		
 	} else {
 		printk(KERN_INFO "Failed to send %d characters to the user\n", error_count);
+		mutex_unlock(&my_lock);
 		return -EFAULT;
 	}
 }
