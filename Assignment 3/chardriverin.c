@@ -21,9 +21,8 @@ EXPORT_SYMBOL(msgSize);
 
 static char newBuff[BUFFER_LENGTH];
 
-// Initialize the Mutex
-struct mutex my_mutex;
-mutex_init(&my_mutex);
+// Declare and initialize the Mutex
+static DEFINE_MUTEX(myMutex);
 
 int init_module(void) {
 	printk(KERN_INFO "Installing module.\n");
@@ -82,7 +81,7 @@ ssize_t device_read(struct file *filp, char *buffer, size_t length, loff_t *offs
 ssize_t device_write(struct file *filp, const char *buff, size_t len, loff_t *off) {
 
 	// Start lock to prevent any data corruption or unauthorized usage
-	mutex_lock(&my_lock);
+	mutex_lock(&myMutex);
 
 	if (msgSize + len <= BUFFER_LENGTH) {
 		strcat(msg, buff + *off);
@@ -103,7 +102,7 @@ ssize_t device_write(struct file *filp, const char *buff, size_t len, loff_t *of
 	printk(KERN_INFO "Received %zu characters from the user\n", len);
 	printk(KERN_INFO "Buffer (%d) [%s]\n", msgSize, msg);
 
-	mutex_unlock(&my_lock);
+	mutex_unlock(&myMutex);
 	
 	return len;
 }
