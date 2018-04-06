@@ -5,12 +5,13 @@ static char receive[BUFFER_LENGTH];
 
 
 int main(void) {
-	int ret, fd;
+	int ret, fd, fd2;
 	char stringToSend[BUFFER_LENGTH];
    
 	printf("Starting device test code example...\n");
-	fd = open("/dev/chardriver", O_RDWR);             // Open the device with read/write access
-	if (fd < 0){
+	fd = open("/dev/chardriverin", O_RDWR);             // Open the device with read/write access
+	fd2 = open("/dev/chardriverout", O_RDWR);             // Open the device with read/write access
+	if (fd < 0 || fd2 < 0){
 		perror("Failed to open the device...");
 		return errno;
 	}
@@ -28,7 +29,7 @@ int main(void) {
 	printf("Wrote [%s]\n", stringToSend1);
 
 	memset(&receive[0], 0, sizeof(receive));
-	ret = read(fd, receive, strlen(stringToSend1));
+	ret = read(fd2, receive, strlen(stringToSend1));
 	if (ret < 0){
 		perror("Failed to read the message from the device.");
 		return errno;
@@ -48,7 +49,7 @@ int main(void) {
 	printf("Wrote [%s]\n", stringToSend2);
 
 	memset(&receive[0], 0, sizeof(receive));
-	ret = read(fd, receive, strlen(stringToSend2));
+	ret = read(fd2, receive, strlen(stringToSend2));
 	if (ret < 0){
 		perror("Failed to read the message from the device.");
 		return errno;
@@ -88,7 +89,7 @@ int main(void) {
 	printf("Wrote [%s]\n", stringToSend3c);
 
 	memset(&receive[0], 0, sizeof(receive));
-	ret = read(fd, receive, 1);
+	ret = read(fd2, receive, 1);
 	if (ret < 0){
 		perror("Failed to read the message from the device.");
 		return errno;
@@ -96,7 +97,7 @@ int main(void) {
 	printf("Read  [%s]\n", receive);
 
 	memset(&receive[0], 0, sizeof(receive));
-	ret = read(fd, receive, 1);
+	ret = read(fd2, receive, 1);
 	if (ret < 0){
 		perror("Failed to read the message from the device.");
 		return errno;
@@ -104,7 +105,7 @@ int main(void) {
 	printf("Read  [%s]\n", receive);
 
 	memset(&receive[0], 0, sizeof(receive));
-	ret = read(fd, receive, 1);
+	ret = read(fd2, receive, 1);
 	if (ret < 0){
 		perror("Failed to read the message from the device.");
 		return errno;
@@ -134,7 +135,7 @@ int main(void) {
 	printf("Wrote [%s]\n", stringToSend5);
 
 	memset(&receive[0], 0, sizeof(receive));
-	ret = read(fd, receive, BUFFER_LENGTH);
+	ret = read(fd2, receive, BUFFER_LENGTH);
 	if (ret < 0){
 		perror("Failed to read the message from the device.");
 		return errno;
@@ -154,7 +155,7 @@ int main(void) {
 	printf("Wrote [%s]\n", stringToSend6);
 
 	memset(&receive[0], 0, sizeof(receive));
-	ret = read(fd, receive, 4); //only 3 characters available
+	ret = read(fd2, receive, 4); //only 3 characters available
 	if (ret < 0){
 		perror("Failed to read the message from the device.");
 		return errno;
