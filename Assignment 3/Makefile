@@ -1,4 +1,5 @@
-obj-m := chardriverin.o chardriverout.o
+obj-m += chardriverin.o
+obj-m += chardriverout.o
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules

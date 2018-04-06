@@ -12,9 +12,7 @@
 #define DRIVER_DESC "A sample character-mode Linux device driver kernel module."
 #define DRIVER_VER "0.1"
 
-
 //Constants
 #define SUCCESS 0
 #define FAILURE -1
-
 #define BUFFER_LENGTH 1024

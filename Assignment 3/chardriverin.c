@@ -10,19 +10,22 @@ MODULE_VERSION(DRIVER_VER);
 static int Major;
 static int isOpen = 0;
 
-// Shared buffer
-extern char * msg[BUFFER_LENGTH];
-
-//static char msg[BUFFER_LENGTH] = {0};
+extern char msg[BUFFER_LENGTH] = {0};
 static int msgSize;
-
-EXPORT_SYMBOL(msg);
-EXPORT_SYMBOL(msgSize);
 
 static char newBuff[BUFFER_LENGTH];
 
-// Declare and initialize the Mutex
-static DEFINE_MUTEX(myMutex);
+struct mutex mutexLock;
+
+
+/*
+static struct file_operations fops = {
+	.read = device_read,
+	.write = device_write,
+	.open = device_open,
+	.release = device_release
+};
+*/
 
 int init_module(void) {
 	printk(KERN_INFO "Installing module.\n");
@@ -74,14 +77,16 @@ int device_release(struct inode *inode, struct file *file) {
 
 	return SUCCESS;
 }
-
+/*
 ssize_t device_read(struct file *filp, char *buffer, size_t length, loff_t *offset) {
-}
+	
+}*/
 
 ssize_t device_write(struct file *filp, const char *buff, size_t len, loff_t *off) {
+	mutex_init(&mutexLock);
+	if(mutex_lock_interruptible(&mutexLock))
+		return -ERESTARTSYS;
 
-	// Start lock to prevent any data corruption or unauthorized usage
-	mutex_lock(&myMutex);
 
 	if (msgSize + len <= BUFFER_LENGTH) {
 		strcat(msg, buff + *off);
@@ -101,8 +106,9 @@ ssize_t device_write(struct file *filp, const char *buff, size_t len, loff_t *of
 	
 	printk(KERN_INFO "Received %zu characters from the user\n", len);
 	printk(KERN_INFO "Buffer (%d) [%s]\n", msgSize, msg);
-
-	mutex_unlock(&myMutex);
 	
+	mutex_unlock(&mutexLock);
+
 	return len;
 }
+
