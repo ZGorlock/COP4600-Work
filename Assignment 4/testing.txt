@@ -1,0 +1,12 @@
+make
+sudo insmod chardriverin.ko
+sudo insmod chardriverout.ko
+dmesg
+sudo mknod /dev/chardriverin c 247 0
+sudo mknod /dev/chardriverout c 248 0
+sudo ./test
+sudo rmmod chardriverout -f
+sudo rmmod chardriverin -f
+sudo rm /dev/chardriverout
+sudo rm /dev/chardriverin
+dmesg
